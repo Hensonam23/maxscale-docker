@@ -1,14 +1,12 @@
 # MaxScale Docker Fork – Final Project
 
 ## Introduction
----
 
 This project is a fork of the official MaxScale Docker repository by MariaDB. The goal was to set up and test MaxScale in a Docker environment using Docker Compose, making small changes and documenting how it works for our final class project.
 
 MaxScale is a database proxy for MariaDB that provides advanced features like read/write splitting, failover, and monitoring. Here, we walk through how to run it, how we configured it, and how our Docker setup is structured.
 
 ## Running
----
 
 To start the containerized MaxScale service, make sure you’re in the project directory and run:
 
@@ -39,7 +37,6 @@ sudo docker-compose up -d --build
 This will rebuild the container using your updated config.
 
 ## Configuration
----
 
 All configuration changes are handled through the `maxscale.cnf` file inside the `config/` directory. This file controls how MaxScale connects to backend servers, what services it runs, and how it routes traffic.
 
@@ -59,7 +56,6 @@ If you need to:
 Just update the config file and rebuild the container with the `--build` flag.
 
 ## MaxScale Docker-Compose Setup
----
 
 We’re using a single `docker-compose.yml` file that launches one service for MaxScale.
 
@@ -83,7 +79,6 @@ services:
 - **Restart Policy**: Container will auto-restart unless manually stopped.
 
 ## Query Results
----
 
 These are example outputs from the two test queries: `zipcodes_one` and `zipcodes_two`.
 
@@ -110,6 +105,3 @@ These are example outputs from the two test queries: `zipcodes_one` and `zipcode
 ```
 
 These outputs confirm that MaxScale is routing queries to the appropriate backend databases.
-
-## Submission Notes
----
