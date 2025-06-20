@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 
 services:
   shard1:
@@ -28,7 +28,7 @@ services:
       - "4006:4006"
       - "8989:8989"
     volumes:
-      - ./maxscale.cnf.d:/etc/maxscale.cnf.d
+      - ./maxscale/maxscale.cnf.d:/etc/maxscale.cnf.d
     depends_on:
       - shard1
       - shard2
