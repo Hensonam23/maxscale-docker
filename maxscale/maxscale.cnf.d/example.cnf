@@ -1,12 +1,16 @@
-[server1]
+[maxscale]
+threads=auto
+log_info=1
+
+[shard1-server]
 type=server
-address=master
+address=shard1
 port=3306
 protocol=MariaDBBackend
 
-[server2]
+[shard2-server]
 type=server
-address=slave1
+address=shard2
 port=3306
 protocol=MariaDBBackend
 
@@ -21,15 +25,27 @@ protocol=MariaDBBackend
 # MySQL Monitor documentation:
 # https://github.com/mariadb-corporation/MaxScale/blob/2.3/Documentation/Monitors/MariaDB-Monitor.md
 
-[MariaDB-Monitor]
+[shard1-monitor]
 type=monitor
 module=mariadbmon
-servers=server1,server2,server3
+servers=server1-server
 user=maxuser
 password=maxpwd
 auto_failover=true
 auto_rejoin=true
 enforce_read_only_slaves=1
+monitor_interval=1000
+
+[shard2-monitor]
+type=monitor
+module=mariadbmon
+servers=server2-server         
+user=maxuser
+password=maxpwd
+auto_failover=true
+auto_rejoin=true
+enforce_read_only_slaves=1
+monitor_interval=1000
 
 # Service definitions
 # Service Definition for a read-only service and a read/write splitting service.
@@ -37,10 +53,10 @@ enforce_read_only_slaves=1
 # ReadConnRoute documentation:
 # https://github.com/mariadb-corporation/MaxScale/blob/2.3/Documentation/Routers/ReadConnRoute.md
 
-[Read-Only-Service]
+[Sharding-Service]
 type=service
-router=readconnroute
-servers=server1,server2,server3
+router=schemarouter
+servers=shard1-server,shard2-server
 user=maxuser
 password=maxpwd
 router_options=slave
@@ -59,11 +75,11 @@ master_failure_mode=fail_on_write
 # Listener definitions for the services
 # Listeners represent the ports the services will listen on.
 
-[Read-Only-Listener]
-type=listener
-service=Read-Only-Service
-protocol=MySQLClient
-port=4008
+[Sharding-Listener]
+type=service
+service=Sharding-Service
+protocol=MariaDBClient
+port=4006
 
 [Read-Write-Listener]
 type=listener
