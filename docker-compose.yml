@@ -1,0 +1,43 @@
+version: '3.3'
+
+services:
+  shard1:
+    image: mariadb:10.5
+    container_name: shard1
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - shard1_data:/var/lib/mysql
+    networks:
+      - maxscale_shard_net
+
+  shard2:
+    image: mariadb:10.5
+    container_name: shard2
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - shard2_data:/var/lib/mysql
+    networks:
+      - maxscale_shard_net
+
+  maxscale:
+    image: mariadb/maxscale:latest
+    container_name: maxscale
+    ports:
+      - "4006:4006"
+      - "8989:8989"
+    volumes:
+      - ./maxscale/maxscale.cnf.d:/etc/maxscale.cnf.d
+    depends_on:
+      - shard1
+      - shard2
+    networks:
+      - maxscale_shard_net
+
+volumes:
+  shard1_data:
+  shard2_data:
+
+networks:
+  maxscale_shard_net:
