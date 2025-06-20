@@ -8,100 +8,133 @@ MaxScale is a database proxy for MariaDB that provides advanced features like re
 
 ## Running
 
-To start the containerized MaxScale service, make sure you’re in the project directory and run:
+To start the containerized MaxScale service, make sure Docker and Docker Compose are installed on your system.
 
-```bash
-sudo docker-compose up -d
-```
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Hensonam23/maxscale-docker.git
+   cd maxscale-docker
+   ```
 
-This pulls the official MaxScale image and starts the container in detached mode.
+2. Start the containers:
+   ```bash
+   sudo docker-compose up -d
+   ```
 
-To confirm it’s running:
+3. Check that all containers are running:
+   ```bash
+   sudo docker ps
+   ```
 
-```bash
-sudo docker ps
-```
-
-To stop everything:
-
-```bash
-sudo docker-compose down
-```
-
-If you make changes to the config file and need to rebuild:
-
-```bash
-sudo docker-compose up -d --build
-```
-
-This will rebuild the container using your updated config.
+4. Enter a shard container to verify the data:
+   ```bash
+   sudo docker exec -it shard1 bash
+   mysql -u root -prootpass
+   ```
 
 ## Configuration
 
-All configuration changes are handled through the `maxscale.cnf` file inside the `config/` directory. This file controls how MaxScale connects to backend servers, what services it runs, and how it routes traffic.
+All configuration changes are handled through the `maxscale.cnf` file inside the `config/` directory. This file controls how MaxScale connects to backend servers, what services it runs and how it routes traffic.
 
 We also included an optional `.env` file to keep environment variables separate and make the setup cleaner.
 
 ### Example Configuration Path
 
-```text
-./config/maxscale.cnf → /etc/maxscale
+```
+./maxscale.cnf
 ```
 
-If you need to:
-- Add new backend servers
-- Change user credentials
-- Modify routing behavior
-
-Just update the config file and rebuild the container with the `--build` flag.
+This file defines:
+- Two servers: `shard1`, `shard2`
+- A service using the `schemarouter` plugin
+- Listener on port `4006`
+- Monitoring with `mariadbmon`
 
 ## MaxScale Docker-Compose Setup
 
-We’re using a single `docker-compose.yml` file that launches one service for MaxScale.
+Docker Compose sets up three containers:
+- `shard1`: MariaDB server with `shard1.sql`
+- `shard2`: MariaDB server with `shard2.sql`
+- `maxscale`: MaxScale proxy that routes queries based on database name
 
-### Here's how it's set up:
+The setup file is located at:
 
-```yaml
-services:
-  maxscale:
-    image: mariadb/maxscale:latest
-    ports:
-      - "4006:4006"      # MaxScale service port
-      - "8989:8989"      # MaxScale Admin GUI (optional)
-    volumes:
-      - ./config:/etc/maxscale
-    restart: unless-stopped
+```
+./docker-compose.yml
 ```
 
-- **Image**: Uses the official `mariadb/maxscale` image.
-- **Volumes**: Mounts the local `config/` folder to `/etc/maxscale` in the container.
-- **Ports**: 4006 for client traffic, and 8989 for accessing the MaxScale GUI (if enabled in config).
-- **Restart Policy**: Container will auto-restart unless manually stopped.
+To rebuild the containers:
+
+```bash
+sudo docker-compose down
+sudo docker-compose up --build -d
+```
 
 ## Query Results
 
 These are example outputs from the two test queries: `zipcodes_one` and `zipcodes_two`.
 
-### Output from zipcodes_one:
-
+### Largest zipcode in `zipcodes_one`
 ```sql
-+----------+---------+
-| zipcode  | city    |
-+----------+---------+
-| 98101    | Seattle |
-| 98052    | Redmond |
-+----------+---------+
+SELECT MAX(Zip) FROM zipcodes_one;
 ```
 
-### Output from zipcodes_two:
+| Max Zip |
+|---------|
+| 99929   |
 
+---
+
+### All zipcodes where state = 'KY'
 ```sql
-+----------+-------------+
-| zipcode  | population  |
-+----------+-------------+
-| 98101    | 123456      |
-| 98052    | 78910       |
-+----------+-------------+
+SELECT * FROM zipcodes_one WHERE State = 'KY'
+UNION
+SELECT * FROM zipcodes_two WHERE State = 'KY';
 ```
 
-These outputs confirm that MaxScale is routing queries to the appropriate backend databases.
+| Zip   | State | City       | TotalWages   |
+|-------|-------|------------|--------------|
+| 40906 | KY    | HARLAN     | 18920456.38  |
+| 42420 | KY    | HENDERSON  | 20399817.73  |
+
+---
+
+### Zipcodes between 40000 and 41000
+```sql
+SELECT * FROM zipcodes_one WHERE Zip BETWEEN 40000 AND 41000
+UNION
+SELECT * FROM zipcodes_two WHERE Zip BETWEEN 40000 AND 41000;
+```
+
+| Zip   | State | City       | TotalWages   |
+|-------|-------|------------|--------------|
+| 40003 | KY    | BAGDAD     | 2839127.33   |
+| 40508 | KY    | LEXINGTON  | 13877912.55  |
+
+---
+
+### Total wages in state = 'PA'
+```sql
+SELECT TotalWages FROM zipcodes_one WHERE State = 'PA'
+UNION
+SELECT TotalWages FROM zipcodes_two WHERE State = 'PA';
+```
+
+| TotalWages   |
+|--------------|
+| 32498743.27  |
+| 23578100.45  |
+
+---
+
+## Credits
+
+Written and Tested by **Aaron Henson**  
+Class: **CNE370 - Introduction to Virtualization**
+
+---
+
+##  Resources
+
+- [Official MaxScale Docker Repo](https://github.com/mariadb-corporation/maxscale-docker)
+- [Markdown Help](https://help.github.com/en/github/writing-on-github/basic-writing-and-formatting-syntax)
