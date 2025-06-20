@@ -22,10 +22,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `zipcodes_two`
 --
-CREATE DATABASE IF NOT EXISTS `zipcodes_two` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `zipcodes_two`;
 
 -- --------------------------------------------------------
 
