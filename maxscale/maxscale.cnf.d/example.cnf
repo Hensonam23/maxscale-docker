@@ -15,7 +15,7 @@ protocol=MariaDBBackend
 # MySQL Monitor documentation:
 # https://github.com/mariadb-corporation/MaxScale/blob/2.3/Documentation/Monitors/MariaDB-Monitor.md
 
-[shard_monitor]
+[Sharding-Monitor]
 type=monitor
 module=mariadbmon
 servers=shard1,shard2

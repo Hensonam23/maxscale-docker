@@ -1,29 +1,17 @@
-# Dockerfile for the 2.4 GA version of MariaDB MaxScale
-FROM ubuntu:bionic
+FROM mariadb/maxscale:latest
 
-ARG VERSION
-ARG GIT_COMMIT
-ARG GIT_TREE_STATE
-ARG BUILD_TIME
+USER root
 
-COPY maxscale.list /etc/apt/sources.list.d/maxscale.list.tmp
+RUN apt-get update && \
+    apt-get install -y net-tools procps iputils-ping curl gnupg lsb-release && \
+    curl -sS https://downloads.mariadb.com/MaxScale/maxscale-release.sh | bash && \
+    apt-get update && \
+    apt-get install -y maxscale && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN apt-get -y update && \
-    apt-get -y install gnupg2 ca-certificates && \
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys "0x135659e928c12247" && \
-    mv /etc/apt/sources.list.d/maxscale.list.tmp /etc/apt/sources.list.d/maxscale.list && \
-    apt-get -y update && \
-    apt-get -y install maxscale && \
-    rm -rf /var/lib/apt/lists/* && \
-    if [ ! -z $VERSION ] && [ ! -z $GIT_COMMIT ] && [ ! -z $BUILD_TIME ]; then \
-       printf "Version:    $VERSION\nGit commit: $GIT_COMMIT$GIT_TREE_STATE\nBuilt:      $BUILD_TIME\n" > /opt/image_details; fi
+RUN id -u maxscale 2>/dev/null || useradd -ms /bin/bash maxscale
 
-COPY maxscale.cnf /etc/
-ENTRYPOINT ["maxscale", "-d", "-U", "maxscale", "-l", "stdout"]
+USER maxscale
 
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod 755 /usr/local/bin/docker-entrypoint.sh && \
-    ln -s /usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh # backwards compat
-ENTRYPOINT ["docker-entrypoint.sh"]
-
-CMD ["maxscale", "-d", "-U", "maxscale", "-l", "stdout"]
+ENTRYPOINT ["/usr/bin/maxscale"]
