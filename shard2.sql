@@ -7,9 +7,6 @@
 -- Server version: 5.7.21
 -- PHP Version: 5.6.35
 
-CREATE DATABASE IF NOT EXISTS test;
-USE test;
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
 START TRANSACTION;
@@ -22,12 +19,15 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
+-- Database: `zipcodes_two`
 --
+CREATE DATABASE IF NOT EXISTS `zipcodes__two` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `zipcodes__two`;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `zipcodes_two`
+-- Table structure for table `zipcodes`
 --
 
 DROP TABLE IF EXISTS `zipcodes_two`;
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `zipcodes_two` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `zipcodes_two`
+-- Dumping data for table `zipcodes`
 --
 
 INSERT INTO `zipcodes_two` (`Zipcode`, `ZipCodeType`, `City`, `State`, `LocationType`, `Coord_Lat`, `Coord_Long`, `Location`, `Decommisioned`, `TaxReturnsFiled`, `EstimatedPopulation`, `TotalWages`) VALUES

@@ -21,8 +21,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `zipcodes_one`
 --
-CREATE DATABASE IF NOT EXISTS `zipcodes_one` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `zipcodes_one`;
+CREATE DATABASE IF NOT EXISTS `zipcodes__one` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `zipcodes__one`;
 
 -- --------------------------------------------------------
 
